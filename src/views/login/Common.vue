@@ -1,5 +1,5 @@
 <template>
-  <div class="container-common" >
+  <div class="container">
     <div class="content">
       <div class="top">
         <div class="header">
@@ -34,17 +34,6 @@ export default {
     copyright () {
       return this.$store.state.setting.copyright
     }
-    // ,
-    // background: function () {
-    //   // 计算body可用高度
-    //   let cHeight = window.outerHeight - (window.outerHeight - window.innerHeight)
-    //   // 存放要换的图片
-    //   let imgs = ["https://larryqs.oss-cn-beijing.aliyuncs.com/login/login/1.jpeg",
-    //     "https://larryqs.oss-cn-beijing.aliyuncs.com/login/login/2.jpeg"]
-    //   let imgName = imgs[Math.floor(Math.random() * 3)] //进行计算随机
-    //   let style = "background-image:url('" + imgName + "'); background-repeat: round; height:" + cHeight + "px;";
-    //   return style
-    // }
   },
   methods: {
     handleRegist (val) {
@@ -55,18 +44,13 @@ export default {
 </script>
 
 <style lang="less" scoped>
-  .container-common {
-    width: 100%;
+  .container {
     display: flex;
     flex-direction: column;
     height: 100vh;
     overflow: auto;
-    //background: #f0f2f5 url('https://gw.alipayobjects.com/zos/rmsportal/TVYTbAXWheQpRcWDaDMu.svg') no-repeat center 110px;
-    background: #f0f2f5 url('https://larryqs.oss-cn-beijing.aliyuncs.com/login/login/1.jpeg') no-repeat ;
-    background-size: cover;
-    background-position: center center ;
-    margin:0 !important;
-    padding: 0 !important;
+    background: #f0f2f5 url('https://gw.alipayobjects.com/zos/rmsportal/TVYTbAXWheQpRcWDaDMu.svg') no-repeat center 110px;
+    background-size: 100%;
     .content {
       padding: 32px 0;
       flex: 1;

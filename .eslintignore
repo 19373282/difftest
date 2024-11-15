@@ -3,7 +3,3 @@
 /dist/
 /*.js
 /test/unit/coverage/
-
-
-./frontend_web
-/frontend_web

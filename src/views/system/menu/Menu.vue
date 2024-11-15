@@ -38,10 +38,10 @@
           @cancel="() => createMenu()"
           @confirm="() => createButton()">
           <a-icon slot="icon" type="question-circle-o" style="color: orangered" />
-          <a-button type="primary" v-hasPermission="['menu:add']" ghost>新增</a-button>
+          <a-button type="primary" v-hasPermission="'menu:add'" ghost>新增</a-button>
         </a-popconfirm>
-        <a-button v-hasPermission="['menu:delete']" @click="batchDelete">删除</a-button>
-        <a-dropdown v-hasPermission="['menu:export']">
+        <a-button v-hasPermission="'menu:delete'" @click="batchDelete">删除</a-button>
+        <a-dropdown v-hasPermission="'menu:export'">
           <a-menu slot="overlay">
             <a-menu-item key="export-data" @click="exprotExccel">导出Excel</a-menu-item>
           </a-menu>
@@ -58,12 +58,12 @@
                :loading="loading"
                :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
                @change="handleTableChange" :scroll="{ x: 1500 }">
-        <template v-if="text" slot="icon" slot-scope="text, record">
+        <template slot="icon" slot-scope="text, record">
          <a-icon :type="text" />
         </template>
         <template slot="operation" slot-scope="text, record">
-          <a-icon v-hasPermission="['menu:update']" type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="edit(record)" title="修改"></a-icon>
-          <a-badge v-hasNoPermission="['menu:update']" status="warning" text="无权限"></a-badge>
+          <a-icon v-hasPermission="'menu:update'" type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="edit(record)" title="修改"></a-icon>
+          <a-badge v-hasNoPermission="'menu:update'" status="warning" text="无权限"></a-badge>
         </template>
       </a-table>
     </div>
@@ -102,7 +102,7 @@ import MenuAdd from './MenuAdd'
 import MenuEdit from './MenuEdit'
 import ButtonAdd from './ButtonAdd'
 import ButtonEdit from './ButtonEdit'
-import {mapState} from 'vuex'
+
 export default {
   name: 'Menu',
   components: {ButtonAdd, ButtonEdit, RangeDate, MenuAdd, MenuEdit},
@@ -127,17 +127,9 @@ export default {
     }
   },
   computed: {
-    ...mapState({
-      types: state => state.dict.dicts.t_menu_type
-    }),
     columns () {
       let {filteredInfo} = this
       filteredInfo = filteredInfo || {}
-      let typeFilters = []
-      for (let index in this.types) {
-        let obj = {text: this.types[index].valuee, value: this.types[index].keyy}
-        typeFilters.push(obj)
-      }
       return [{
         title: '名称',
         dataIndex: 'text',
@@ -151,16 +143,19 @@ export default {
         title: '类型',
         dataIndex: 'type',
         customRender: (text, row, index) => {
-          for (let index in this.types) {
-            if (text === this.types[index].keyy) {
-              return this.types[index].valuee
-            } else {
-              continue
-            }
+          switch (text) {
+            case '0':
+              return <a-tag color="cyan"> 菜单 </a-tag>
+            case '1':
+              return <a-tag color="pink"> 按钮 </a-tag>
+            default:
+              return text
           }
-          return text
         },
-        filters: typeFilters,
+        filters: [
+          {text: '按钮', value: '1'},
+          {text: '菜单', value: '0'}
+        ],
         filterMultiple: false,
         filteredValue: filteredInfo.type || null,
         onFilter: (value, record) => record.type.includes(value)

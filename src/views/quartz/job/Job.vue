@@ -52,9 +52,9 @@
     </div>
     <div>
       <div class="operator">
-        <a-button v-hasPermission="['job:add']" ghost type="primary" @click="add">新增</a-button>
-        <a-button v-hasPermission="['job:delete']" @click="batchDelete">删除</a-button>
-        <a-dropdown v-hasPermission="['job:export']">
+        <a-button v-hasPermission="'job:add'" ghost type="primary" @click="add">新增</a-button>
+        <a-button v-hasPermission="'job:delete'" @click="batchDelete">删除</a-button>
+        <a-dropdown v-hasPermission="'job:export'">
           <a-menu slot="overlay">
             <a-menu-item key="export-data" @click="exprotExccel">导出Excel</a-menu-item>
           </a-menu>
@@ -66,7 +66,6 @@
       <!-- 表格区域 -->
       <a-table ref="TableInfo"
                :columns="columns"
-               :rowKey="record => record.jobId"
                :dataSource="dataSource"
                :pagination="pagination"
                :loading="loading"
@@ -91,23 +90,23 @@
         <template slot="operations" slot-scope="text, record">
           <a-icon v-hasPermission="'job:update'" type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="edit(record)" title="修改"></a-icon>
           &nbsp;
-          <a-dropdown v-hasAnyPermission="['job:run','job:pause','job:resume']">
-            <a class="ant-dropdown-link">
+          <a-dropdown v-hasAnyPermission="'job:run','job:pause','job:resume'">
+            <a class="ant-dropdown-link" href="#">
               <a-icon type="down-circle" style="font-size: 1.1rem"/>
             </a>
             <a-menu slot="overlay">
-              <a-menu-item v-hasPermission="['job:run']">
+              <a-menu-item v-hasPermission="'job:run'">
                 <a href="javascript:void(0)" @click="runJob(record)">立即执行</a>
               </a-menu-item>
-              <a-menu-item v-hasPermission="['job:pause']" v-if="record.status === '0'">
+              <a-menu-item v-hasPermission="'job:pause'" v-if="record.status === '0'">
                 <a href="javascript:void(0)" @click="pauseJob(record)">暂停任务</a>
               </a-menu-item>
-              <a-menu-item v-hasPermission="['job:resume']" v-if="record.status === '1'">
+              <a-menu-item v-hasPermission="'job:resume'" v-if="record.status === '1'">
                 <a href="javascript:void(0)" @click="resumeJob(record)">恢复任务</a>
               </a-menu-item>
             </a-menu>
           </a-dropdown>
-          <a-badge v-hasNoPermission="['job:update','job:run','job:pause','job:resume']" status="warning" text="无权限"></a-badge>
+          <a-badge v-hasNoPermission="'job:update','job:run','job:pause','job:resume'" status="warning" text="无权限"></a-badge>
         </template>
       </a-table>
     </div>
@@ -295,8 +294,11 @@ export default {
         content: '当您点击确定按钮后，这些记录将会被彻底删除',
         centered: true,
         onOk () {
-          let jobIds = that.selectedRowKeys.join(',')
-          that.$delete('job/' + jobIds).then(() => {
+          let jobIds = []
+          for (let key of that.selectedRowKeys) {
+            jobIds.push(that.dataSource[key].jobId)
+          }
+          that.$delete('job/' + jobIds.join(',')).then(() => {
             that.$message.success('删除成功')
             that.selectedRowKeys = []
             that.search()
@@ -330,7 +332,7 @@ export default {
         sortField = sortedInfo.field
         sortOrder = sortedInfo.order
       }
-      this.selectData({
+      this.fetch({
         sortField: sortField,
         sortOrder: sortOrder,
         ...this.queryParams,
@@ -381,24 +383,6 @@ export default {
         params.pageSize = this.pagination.defaultPageSize
         params.pageNum = this.pagination.defaultCurrent
       }
-      this.$get('job', {
-        ...params
-      }).then((r) => {
-        let data = r.data
-        const pagination = { ...this.pagination }
-        pagination.total = data.total
-        this.loading = false
-        this.dataSource = data.rows
-        this.pagination = pagination
-      })
-    },
-    selectData (params = {}) {
-      this.loading = true
-      // 如果分页信息为空，则设置为默认值
-      this.$refs.TableInfo.pagination.current = this.pagination.defaultCurrent
-      this.$refs.TableInfo.pagination.pageSize = this.pagination.defaultPageSize
-      params.pageSize = this.pagination.defaultPageSize
-      params.pageNum = this.pagination.defaultCurrent
       this.$get('job', {
         ...params
       }).then((r) => {
